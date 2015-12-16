@@ -13,29 +13,81 @@
 
 var paper = Raphael('holder', 640, 480);
 
+// 鼠标点击下去时候的 circle
+var g_startNode;  // circle
+
+// 鼠标松开时候的 circle
+var g_endNode;    // circle
+
+// 需要画的线
+var g_line;       // path
+
 function Node(paper, config) {
     this.paper = paper;
     this.rect = paper.rect(config.x, config.y,
         config.width, config.height, config.radius || 5);
+
     this.circles = this._initInputAndOutput(config);
-    this.group = paper.set();
-    this.group.push.apply(this.group, [this.rect].concat(this.circles));
 
     var color = Raphael.getColor();
-    this.group.attr({fill: '#fff', stroke: '#fff', cursor: 'move'});
-    this.rect.attr({fill: color});
+    this.group = paper.set();
+    this.group.push.apply(this.group, this.circles);
+    this.group.attr({fill: '#fff', stroke: '#fff', cursor: 'pointer'});
+
+    this.rect.attr({fill: color, cursor: 'move', stroke: '#cfcfcf'});
 }
 
 Node.prototype._initInputAndOutput = function (config) {
+    function enlargeCircle(e) {
+        this.or = this.attr('r');
+        this.attr({r: 8});
+    }
+
+    function restoreCircleSize(e) {
+        if (this.or) {
+            this.attr({r: this.or});
+        }
+    }
+
+    var node = this;
+    var paper = node.paper;
+
+    function startOfDrawLine() {
+        if (g_line) {
+            return;
+        }
+
+        // this -> paper.circle
+        g_startNode = this;
+
+        var x = this.attr('cx');
+        var y = this.attr('cy');
+        var start = 'M' + x + ' ' + y;
+        var path = start + 'L' + (x + 1) + ' ' + (y + 1);
+        console.log(path);
+        g_line = paper.path(path);
+        g_line.attr({'arrow-end': 'classic', 'stroke-width': 2, 'stroke': '#cfcfcf'});
+        g_line.start = start;
+    }
+
+    function endOfDrawLine() {
+        if (g_startNode !== this) {
+            g_endNode = this;
+        }
+    }
+
     var circles = [];
     if (config.input) {
         var step = (config.width / (config.input + 1));
         for (var i = 0; i < config.input; i ++) {
             var x = config.x + (i + 1) * step;
             var y = config.y;
-            circles.push(
-                this.paper.circle(x, y, 5)
-            );
+            var circle = this.paper.circle(x, y, 5);
+            circle.mouseover(enlargeCircle);
+            circle.mouseout(restoreCircleSize);
+            circle.mousedown(startOfDrawLine);
+            circle.mouseup(endOfDrawLine);
+            circles.push(circle);
         }
     }
     if (config.output) {
@@ -43,9 +95,12 @@ Node.prototype._initInputAndOutput = function (config) {
         for (var i = 0; i < config.output; i ++) {
             var x = config.x + (i + 1) * step;
             var y = config.y + config.height;
-            circles.push(
-                this.paper.circle(x, y, 5)
-            );
+            var circle = this.paper.circle(x, y, 5);
+            circle.mouseover(enlargeCircle);
+            circle.mouseout(restoreCircleSize);
+            circle.mousedown(startOfDrawLine);
+            circle.mouseup(endOfDrawLine);
+            circles.push(circle);
         }
     }
 
@@ -105,6 +160,33 @@ var node2 = new Node(paper, {
     output: 3
 });
 node2.moveable();
+
+document.querySelector('#holder > svg').onmousemove = function (e) {
+    if (!g_line) {
+        return;
+    }
+
+    var path = g_line.start;
+    if (g_endNode) {
+        var x = g_endNode.attr('cx');
+        var y = g_endNode.attr('cy');
+        g_line.attr('path', path + ' L' + x + ' ' + y);
+        g_line = null;
+        g_endNode = null;
+        return;
+    }
+
+    path += ' L' + e.offsetX + ' ' + e.offsetY;
+    console.log(path);
+    g_line.attr('path', path);
+};
+
+// var graph = new DirectedGraph();
+// var n1 = graph.addNode(n1Config);
+// var n2 = graph.addNode(n2Config);
+// graph.addEdge(n1, n2);
+// graph.addEdge(n1, n2);
+// graph.addEdge(n1, n2);
 
 
 
