@@ -211,6 +211,8 @@ var g_endNode;    // circle
 var g_line;       // path
 
 var canvas = document.querySelector('#holder > svg')
+var clientRect = canvas.getBoundingClientRect();
+
 canvas.onmousedown = function (e) {
     var target = e.target;
     if (target.nodeName !== 'circle'
@@ -253,7 +255,9 @@ canvas.onmousemove = function (e) {
     }
 
     var path = g_line.start;
-    path += ' L' + e.offsetX + ' ' + e.offsetY;
+    var offsetX = (e.clientX - clientRect.left);
+    var offsetY = (e.clientY - clientRect.top);
+    path += ' L' + offsetX + ' ' + offsetY;
     g_line.attr('path', path);
 };
 
