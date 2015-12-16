@@ -15,13 +15,40 @@ var paper = Raphael('holder', 640, 480);
 
 /**
  * @constructor
- * @param {number} n1 Node1's id.
- * @param {number} n2 Node2's id.
+ * @param {number} n1 Node1
+ * @param {number} n2 Node2
+ * @param {Raphael.Path} line The line.
  */
-function Edge(n1, n2) {
+function Edge(n1, n2, line) {
     this.n1 = n1;
     this.n2 = n2;
+    this.line = line;
+
+    this.n1.addOutEdge(this);
+    this.n2.addInEdge(this);
 }
+
+Edge.prototype.onStart = function () {
+    this.line.__path = this.line.attr('path');
+};
+
+Edge.prototype.onMoveEndPoint = function (dx, dy) {
+    var savedPath = this.line.__path;
+    var start = savedPath[0];
+    var end = savedPath[1];
+    var path = start[0] + start[1] + ' ' + start[2]
+               + end[0] + (end[1] + dx) + ' ' + (end[2] + dy);
+    this.line.attr('path', path);
+};
+
+Edge.prototype.onMoveStartPoint = function (dx, dy) {
+    var savedPath = this.line.__path;
+    var start = savedPath[0];
+    var end = savedPath[1];
+    var path = start[0] + (start[1] + dx) + ' ' + (start[2] + dy)
+               + end[0] + end[1] + ' ' + end[2];
+    this.line.attr('path', path);
+};
 
 function Node(paper, config) {
     this.paper = paper;
@@ -56,6 +83,14 @@ function Node(paper, config) {
     this.rect.attr({fill: color, cursor: 'move', stroke: '#cfcfcf'});
 }
 
+Node.prototype.addOutEdge = function (edge) {
+    this.outEdges.push(edge);
+};
+
+Node.prototype.addInEdge = function (edge) {
+    this.inEdges.push(edge);
+};
+
 Node.prototype._initInputAndOutput = function (config) {
     function enlargeCircle(e) {
         this.attr({fill: 'yellow', r: 8});
@@ -64,8 +99,6 @@ Node.prototype._initInputAndOutput = function (config) {
     function restoreCircleSize(e) {
         this.attr({fill: 'white', r: 5});
     }
-
-    var refId = this.rect.id;
 
     var circles = [];
     if (config.input) {
@@ -76,12 +109,11 @@ Node.prototype._initInputAndOutput = function (config) {
             var circle = this.paper.circle(x, y, 5);
             circle.mouseover(enlargeCircle);
             circle.mouseout(restoreCircleSize);
-            // circle.mousedown(startOfDrawLine);
-            // circle.mouseup(endOfDrawLine);
-            circle.refId = refId;
+            circle.refNode = this;
             circles.push(circle);
         }
     }
+
     if (config.output) {
         var step = (config.width / (config.output + 1));
         for (var i = 0; i < config.output; i ++) {
@@ -90,9 +122,7 @@ Node.prototype._initInputAndOutput = function (config) {
             var circle = this.paper.circle(x, y, 5);
             circle.mouseover(enlargeCircle);
             circle.mouseout(restoreCircleSize);
-            // circle.mousedown(startOfDrawLine);
-            // circle.mouseup(endOfDrawLine);
-            circle.refId = refId;
+            circle.refNode = this;
             circles.push(circle);
         }
     }
@@ -116,6 +146,12 @@ Node.prototype.onStart = function () {
         circle.ox = circle.attr('cx');
         circle.oy = circle.attr('cy');
     });
+    this.inEdges.forEach(function (edge) {
+        edge.onStart();
+    });
+    this.outEdges.forEach(function (edge) {
+        edge.onStart();
+    });
 };
 
 Node.prototype.onMove = function (dx, dy) {
@@ -128,6 +164,12 @@ Node.prototype.onMove = function (dx, dy) {
             cx: circle.ox + dx,
             cy: circle.oy + dy
         });
+    });
+    this.inEdges.forEach(function (edge) {
+        edge.onMoveEndPoint(dx, dy);
+    });
+    this.outEdges.forEach(function (edge) {
+        edge.onMoveStartPoint(dx, dy);
     });
 };
 
@@ -153,6 +195,9 @@ var node2 = new Node(paper, {
     output: 3
 });
 node2.moveable();
+
+// 所有边的集合.
+var g_edges = [];
 
 // 鼠标点击下去时候的 circle
 var g_startNode;  // circle
@@ -228,6 +273,12 @@ canvas.onmouseup = function (e) {
     var x = g_endNode.attr('cx');
     var y = g_endNode.attr('cy');
     g_line.attr('path', path + ' L' + x + ' ' + y);
+
+    // BEGIN Create Edge
+    var n1 = g_startNode.refNode;
+    var n2 = g_endNode.refNode;
+    g_edges.push(new Edge(n1, n2, g_line));
+    // E N D Create Edge
 
     g_line = null;
     g_endNode = null;
