@@ -63,10 +63,8 @@ Node.prototype._initInputAndOutput = function (config) {
         var x = this.attr('cx');
         var y = this.attr('cy');
         var start = 'M' + x + ' ' + y;
-        var path = start + 'L' + (x + 1) + ' ' + (y + 1);
-        console.log(path);
+        var path = start + 'L' + (x + 10) + ' ' + (y + 10);
         g_line = paper.path(path);
-        g_line.attr({'arrow-end': 'classic', 'stroke-width': 2, 'stroke': '#cfcfcf'});
         g_line.start = start;
     }
 
@@ -177,8 +175,8 @@ document.querySelector('#holder > svg').onmousemove = function (e) {
     }
 
     path += ' L' + e.offsetX + ' ' + e.offsetY;
-    console.log(path);
-    g_line.attr('path', path);
+    g_line.attr({'arrow-end': 'classic', 'stroke-width': 2,
+        'stroke': '#cfcfcf', 'path': path});
 };
 
 // var graph = new DirectedGraph();
