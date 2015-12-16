@@ -107,6 +107,7 @@ Node.prototype._initInputAndOutput = function (config) {
             var x = config.x + (i + 1) * step;
             var y = config.y;
             var circle = this.paper.circle(x, y, 5);
+            circle.toFront();
             circle.mouseover(enlargeCircle);
             circle.mouseout(restoreCircleSize);
             circle.refNode = this;
@@ -120,6 +121,7 @@ Node.prototype._initInputAndOutput = function (config) {
             var x = config.x + (i + 1) * step;
             var y = config.y + config.height;
             var circle = this.paper.circle(x, y, 5);
+            circle.toFront();
             circle.mouseover(enlargeCircle);
             circle.mouseout(restoreCircleSize);
             circle.refNode = this;
@@ -283,6 +285,22 @@ canvas.onmouseup = function (e) {
     g_line = null;
     g_endNode = null;
     g_startNode = null;
+};
+
+function pick(min, max) {
+    return min + ~~((max - min) * Math.random());
+}
+
+document.querySelector('#add-node').onclick = function () {
+    var node = new Node(paper, {
+        x: pick(0, 100),
+        y: pick(0, 100),
+        width: pick(150, 250),
+        height: pick(30, 60),
+        input: pick(0, 3),
+        output: pick(1, 4)
+    });
+    node.moveable();
 };
 
 // var graph = new DirectedGraph();
