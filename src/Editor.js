@@ -58,9 +58,20 @@ define(function (require) {
      * @param {jQuery.Event} e Event object.
      */
     Editor.prototype._onContextMenu = function (e) {
+        var target = e.target;
+        if (target.nodeName === 'path') {
+            this.menu.setItems(['Delete']);
+        }
+        else if (target.nodeName === 'rect') {
+            this.menu.setItems(['Delete', 'Copy', '--', 'Help']);
+        }
+        else {
+            this.menu.hide();
+            return;
+        }
+
         var x = (e.clientX - this.clientRect.left);
         var y = (e.clientY - this.clientRect.top);
-        this.menu.setItems(['Copyright', 'Editor']);
         this.menu.show().moveTo(e.pageX + 5, e.pageY + 5);
         e.preventDefault();
     };
