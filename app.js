@@ -228,7 +228,7 @@ canvas.onmousedown = function (e) {
     var path = [start, ['L', (x + 1), (y + 1)]];
     g_line = paper.path(path);
     g_line.attr({'stroke-width': 2, 'stroke': '#cfcfcf',
-        'arrow-end': 'diamond', 'stroke-dasharray': '-.'});
+        'arrow-end': 'diamond-wide', 'stroke-dasharray': '-.'});
     g_line.start = start;
 };
 
@@ -281,6 +281,8 @@ canvas.onmouseup = function (e) {
     var y = g_endNode.attr('cy');
     var path = path2curve(start[1], start[2], x, y);
     g_line.attr({'path': path, 'stroke-dasharray': 'none'});
+    g_endNode.attr({'opacity': 0});
+    g_startNode.attr({'fill': 'black'});
 
     // BEGIN Create Edge
     var n1 = g_startNode.refNode;
