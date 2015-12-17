@@ -31,7 +31,8 @@ Raphael.el.cross = function () {
     ];
     this.attr({cursor: 'pointer'});
     var path = this.paper.path(path).attr({
-        stroke: "red", cursor: 'pointer',
+        'stroke': "red", cursor: 'pointer',
+        'stroke-width': 2,
         'clip-rect': (cx - r / 2) + ',' + (cy - r / 2) + ',' + r + ',' + r
     });
 };
@@ -50,10 +51,31 @@ function Edge(n1, n2, line) {
     this.n1 = n1;
     this.n2 = n2;
     this.line = line;
+    this.close = null;
 
     this.n1.addOutEdge(this);
     this.n2.addInEdge(this);
+
+    this.bindEvent();
 }
+
+Edge.prototype.bindEvent = function () {
+    this.line.click(this._clickPath.bind(this));
+};
+
+Edge.prototype._clickPath = function (e) {
+    this.line.attr({'stroke-dasharray': '-.'});
+
+    // FIXME clientRect
+    var offsetX = (e.clientX - clientRect.left);
+    var offsetY = (e.clientY - clientRect.top);
+    if (!this.close) {
+        this.close = this.line.paper.circle(offsetX, offsetY, 10);
+        this.close.cross();
+        this.close.attr({fill: '#cfcfcf'});
+    }
+    this.close.attr({cx: offsetX, cy: offsetY});
+};
 
 Edge.prototype.onStart = function () {
     this.line.__path = this.line.attr('path');
@@ -257,18 +279,6 @@ canvas.onmousedown = function (e) {
         'arrow-end': 'diamond-wide', 'stroke-dasharray': '-.',
         'cursor': 'pointer'});
     g_line.start = start;
-    g_line.click(function (e) {
-        this.attr({'stroke-dasharray': '-.'});
-        return;
-        console.log(e);
-        var offsetX = (e.clientX - clientRect.left);
-        var offsetY = (e.clientY - clientRect.top);
-        var circle = paper.circle(offsetX, offsetX, 10);
-        circle.attr({
-            fill: 'green',
-            stroke: 'green'
-        });
-    });
 };
 
 canvas.onmouseover = function (e) {
