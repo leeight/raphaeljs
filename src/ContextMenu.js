@@ -20,6 +20,8 @@ define(function (require) {
      */
     function ContextMenu() {
         this.el = $('<div />').attr('class', 'ui-menu');
+        this.el.on('click', 'li', this.onSelectMenu.bind(this));
+        this._target = null;
         $(document.body).append(this.el);
     }
 
@@ -36,6 +38,27 @@ define(function (require) {
         html += '</ul>';
         this.el.html(html);
         return this;
+    };
+
+    ContextMenu.prototype.setTarget = function (target) {
+        this._target = target;
+        return this;
+    };
+
+    ContextMenu.prototype.onSelectMenu = function (e) {
+        var command = $(e.target).html();
+        if (typeof this.onselected === 'function') {
+            try {
+                this.onselected({
+                    type: command,
+                    target: this._target
+                });
+            }
+            catch (ex) {
+                console.error(ex);
+            }
+        }
+        this.hide();
     };
 
     ContextMenu.prototype.moveTo = function (x, y) {

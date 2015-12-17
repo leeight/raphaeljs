@@ -19,21 +19,39 @@ define(function (require) {
      * 两个 Node 之间的『边』，不是 circle 直接的连线.
      *
      * @constructor
-     * @param {number} n1 Node1
-     * @param {number} n2 Node2
+     * @param {Raphael.Circle} startCircle The start circle.
+     * @param {Raphael.Circle} endCircle The end circle.
      * @param {Raphael.Path} line The line.
      */
-    function Edge(n1, n2, line) {
-        this.n1 = n1;
-        this.n2 = n2;
-        this.line = line;
-        this.close = null;
+    function Edge(startCircle, endCircle, line) {
+        util.Base.call(this);
 
-        this.n1.addOutEdge(this);
-        this.n2.addInEdge(this);
+        this.line = line;
+        this.line.__sId = this._id;
+
+        this.startCircle = startCircle;
+        this.endCircle = endCircle;
+
+        this.endCircle.attr({opacity: 0});
+        this.startCircle.attr({fill: 'black'});
+
+        this.start = util.getInstance(startCircle.__sId);
+        this.end = util.getInstance(endCircle.__sId);
+
+        this.start.addOutEdge(this);
+        this.end.addInEdge(this);
 
         this.bindEvent();
     }
+
+    Edge.prototype.remove = function () {
+        this.start.removeOutEdge(this);
+        this.end.removeInEdge(this);
+
+        this.startCircle.attr({fill: 'white'});
+        this.endCircle.attr({opacity: 1});
+        this.line.remove();
+    };
 
     Edge.prototype.bindEvent = function () {
         this.line.click(this._clickPath.bind(this));
@@ -41,18 +59,6 @@ define(function (require) {
 
     Edge.prototype._clickPath = function (e) {
         this.line.attr({'stroke-dasharray': '-.'});
-
-        // FIXME clientRect
-        var svg = document.querySelector('#holder > svg');
-        var clientRect = svg.getBoundingClientRect();
-        var offsetX = (e.clientX - clientRect.left);
-        var offsetY = (e.clientY - clientRect.top);
-        if (!this.close) {
-            this.close = this.line.paper.circle(offsetX, offsetY, 10);
-            this.close.cross();
-            this.close.attr({fill: '#cfcfcf'});
-        }
-        this.close.attr({cx: offsetX, cy: offsetY});
     };
 
     Edge.prototype.onStart = function () {

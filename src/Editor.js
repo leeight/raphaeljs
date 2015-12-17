@@ -18,6 +18,8 @@ define(function (require) {
     var ContextMenu = require('./ContextMenu');
 
     /**
+     * 编辑器
+     *
      * @constructor
      * @param {Element} canvas The svg element.
      * @param {Paper} paper The raphael paper.
@@ -47,31 +49,51 @@ define(function (require) {
         this.canvas.onmouseup     = this._onMoseUp.bind(this);
         this.canvas.oncontextmenu = this._onContextMenu.bind(this);
         this.canvas.onclick       = this._onClick.bind(this);
+        this.menu.onselected      = this._onContextMenuSelected.bind(this);
     };
 
     Editor.prototype._onClick = function (e) {
         this.menu.hide();
     };
 
+    Editor.prototype._onContextMenuSelected = function (e) {
+        if (e.type === 'Delete Path') {
+            var edge = e.target;    // Node | Edge
+            if (edge) {
+                edge.remove();
+                console.log(edge);
+            }
+        }
+    };
+
     /**
      * 右键点击 Edge 的时候，显示自定义的菜单
+     *
      * @param {jQuery.Event} e Event object.
      */
     Editor.prototype._onContextMenu = function (e) {
+        // target 是 DOM element
+        // target.raphaelid -> Raphael.Element
+        // Raphael.Element.__sId -> Node | Edge
         var target = e.target;
+        var raphaelElement;
         if (target.nodeName === 'path') {
-            this.menu.setItems(['Delete']);
+            raphaelElement = this.paper.getById(target.raphaelid);
+            this.menu.setTarget(util.getInstance(raphaelElement.__sId));
+            this.menu.setItems(['Delete Path']);
         }
         else if (target.nodeName === 'rect') {
-            this.menu.setItems(['Delete', 'Copy', '--', 'Help']);
+            raphaelElement = this.paper.getById(target.raphaelid);
+            this.menu.setTarget(util.getInstance(raphaelElement.__sId));
+            this.menu.setItems(['Delete Rect', 'Copy Rect', '--', 'Help']);
         }
         else {
             this.menu.hide();
             return;
         }
 
-        var x = (e.clientX - this.clientRect.left);
-        var y = (e.clientY - this.clientRect.top);
+        // var x = (e.clientX - this.clientRect.left);
+        // var y = (e.clientY - this.clientRect.top);
         this.menu.show().moveTo(e.pageX + 5, e.pageY + 5);
         e.preventDefault();
     };
@@ -145,12 +167,10 @@ define(function (require) {
         var y = this._endNode.attr('cy');
         var path = util.path2curve(start[1], start[2], x, y);
         this._line.attr({'path': path, 'stroke-dasharray': 'none'});
-        this._endNode.attr({opacity: 0});
-        this._startNode.attr({fill: 'black'});
 
-        var n1 = this._startNode.refNode;
-        var n2 = this._endNode.refNode;
-        var edge = new Edge(n1, n2, this._line);
+        var startCircle = this._startNode;
+        var endCircle = this._endNode;
+        var edge = new Edge(startCircle, endCircle, this._line);
         this._edges.push(edge);
 
         this._line = null;

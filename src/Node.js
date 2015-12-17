@@ -13,11 +13,15 @@
 
 define(function (require) {
 
+    var util = require('./util');
+
     /**
      * @constructor
      * @param {Object} config Node's configuration.
      */
     function Node(paper, config) {
+        util.Base.call(this);
+
         this.rect = paper.rect(config.x, config.y,
             config.width, config.height, config.radius || 5);
         this.circles = this._initInputAndOutput(config);
@@ -49,6 +53,24 @@ define(function (require) {
         this.rect.attr({fill: color, cursor: 'move', stroke: '#cfcfcf'});
     }
 
+    Node.prototype.removeOutEdge = function (edge) {
+        for (var i = 0; i < this.outEdges.length; i++) {
+            if (edge === this.outEdges[i]) {
+                this.outEdges.splice(i, 1);
+                break;
+            }
+        }
+    };
+
+    Node.prototype.removeInEdge = function (edge) {
+        for (var i = 0; i < this.inEdges.length; i++) {
+            if (edge === this.inEdges[i]) {
+                this.inEdges.splice(i, 1);
+                break;
+            }
+        }
+    };
+
     Node.prototype.addOutEdge = function (edge) {
         this.outEdges.push(edge);
     };
@@ -76,7 +98,7 @@ define(function (require) {
                 circle.toFront();
                 circle.mouseover(enlargeCircle);
                 circle.mouseout(restoreCircleSize);
-                circle.refNode = this;
+                circle.__sId = this._id;
                 circles.push(circle);
             }
         }
@@ -90,7 +112,7 @@ define(function (require) {
                 circle.toFront();
                 circle.mouseover(enlargeCircle);
                 circle.mouseout(restoreCircleSize);
-                circle.refNode = this;
+                circle.__sId = this._id;
                 circles.push(circle);
             }
         }

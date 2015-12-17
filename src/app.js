@@ -19,7 +19,6 @@ define(function (require) {
 
     var Node = require('./Node');
     var Editor = require('./Editor');
-    var ContextMenu = require('./ContextMenu');
     var util = require('./util');
 
     function start() {

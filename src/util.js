@@ -14,6 +14,9 @@
 define(function (require) {
     var exports = {};
 
+    var uuid = 0x8964;
+    var pool = {};
+
     exports.pick = function (min, max) {
         return min + ~~((max - min) * Math.random());
     };
@@ -33,6 +36,21 @@ define(function (require) {
         ].join(',');
 
         return path;
+    };
+
+    /**
+     * 获取实例的信息，例如 Node，Edge 之类的
+     *
+     * @param {string} sId The instance id.
+     * @return {?Object}
+     */
+    exports.getInstance = function (sId) {
+        return pool[sId];
+    };
+
+    exports.Base = function () {
+        this._id = (uuid++).toString(36);
+        pool[this._id] = this;
     };
 
     return exports;

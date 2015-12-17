@@ -33,7 +33,8 @@ define(function (require) {
             ];
             this.attr({cursor: 'pointer'});
             this.paper.path(path).attr({
-                'stroke': 'red', cursor: 'pointer',
+                'stroke': 'red',
+                'cursor': 'pointer',
                 'stroke-width': 2,
                 'clip-rect': (cx - r / 2) + ',' + (cy - r / 2) + ',' + r + ',' + r
             });
