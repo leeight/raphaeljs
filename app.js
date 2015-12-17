@@ -298,11 +298,13 @@ function pick(min, max) {
 }
 
 document.querySelector('#add-node').onclick = function () {
+    var width = pick(150, 250);
+    var height = pick(30, 60);
     var node = new Node(paper, {
-        x: pick(0, 100),
-        y: pick(0, 100),
-        width: pick(150, 250),
-        height: pick(30, 60),
+        x: pick(0, 640 - width),
+        y: pick(0, 480 - height),
+        width: width,
+        height: height,
         input: pick(0, 3),
         output: pick(1, 4)
     });
