@@ -36,8 +36,7 @@ Edge.prototype.onMoveEndPoint = function (dx, dy) {
     var savedPath = this.line.__path;
     var start = savedPath[0];
     var end = savedPath[1];
-    var path = start[0] + start[1] + ' ' + start[2]
-               + end[0] + (end[1] + dx) + ' ' + (end[2] + dy);
+    var path = path2curve(start[1], start[2], end[5] + dx, end[6] + dy);
     this.line.attr('path', path);
 };
 
@@ -45,8 +44,7 @@ Edge.prototype.onMoveStartPoint = function (dx, dy) {
     var savedPath = this.line.__path;
     var start = savedPath[0];
     var end = savedPath[1];
-    var path = start[0] + (start[1] + dx) + ' ' + (start[2] + dy)
-               + end[0] + end[1] + ' ' + end[2];
+    var path = path2curve(start[1] + dx, start[2] + dy, end[5], end[6]);
     this.line.attr('path', path);
 };
 
@@ -281,32 +279,8 @@ canvas.onmouseup = function (e) {
     var start = g_line.start;
     var x = g_endNode.attr('cx');
     var y = g_endNode.attr('cy');
-    var path = [start, ['L', x, y]];
+    var path = path2curve(start[1], start[2], x, y);
     g_line.attr({'path': path, 'stroke-dasharray': 'none'});
-
-    // BEGIN Curve
-    var x1 = start[1];
-    var y1 = start[2];
-
-    var x4 = x;
-    var y4 = y;
-
-    var dx = Math.max(Math.abs(x1 - x4) / 2, 10);
-    var dy = Math.max(Math.abs(y1 - y4) / 2, 10);
-
-    // TODO res应该如何计算出来的呢?
-    var res = [0, 4];
-    var x2 = [x1, x1, x1 - dx, x1 + dx][res[0]].toFixed(3);
-    var y2 = [y1 - dy, y1 + dy, y1, y1][res[0]].toFixed(3);
-    var x3 = [0, 0, 0, 0, x4, x4, x4 - dx, x4 + dx][res[1]].toFixed(3);
-    var y3 = [0, 0, 0, 0, y1 + dy, y1 - dy, y4, y4][res[1]].toFixed(3);
-
-    var path = [
-        "M", x1.toFixed(3), y1.toFixed(3),
-        "C", x2, y2, x3, y3, x4.toFixed(3), y4.toFixed(3)
-    ].join(",");
-    // g_line.attr('path', path);
-    // E N D Curve
 
     // BEGIN Create Edge
     var n1 = g_startNode.refNode;
@@ -334,6 +308,23 @@ document.querySelector('#add-node').onclick = function () {
     });
     node.moveable();
 };
+
+function path2curve(x1, y1, x4, y4) {
+    var dx = Math.max(Math.abs(x1 - x4) / 2, 10);
+    var dy = Math.max(Math.abs(y1 - y4) / 2, 10);
+
+    var x2 = x1 + dx;
+    var y2 = y1;
+    var x3 = x4 - dx;
+    var y3 = y4;
+
+    var path = [
+        "M", x1.toFixed(3), y1.toFixed(3),
+        "C", x2, y2, x3, y3, x4.toFixed(3), y4.toFixed(3)
+    ].join(",");
+
+    return path;
+}
 
 // var graph = new DirectedGraph();
 // var n1 = graph.addNode(n1Config);
