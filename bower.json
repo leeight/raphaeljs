@@ -1,0 +1,24 @@
+{
+  "name": "raphaeljs",
+  "authors": [
+    "leeight <leeight@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "raphael": "~2.1.4",
+    "jquery": "~2.1.4"
+  }
+}
