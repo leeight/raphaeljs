@@ -26,6 +26,8 @@ body {
 .ui-menu {
     z-index: 1000;
     position: absolute;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
 }
 
 .ui-menu ul {
@@ -46,5 +48,6 @@ body {
 }
 
 .ui-menu li:hover {
-    background: #c3d9ff;
+    background: #006ad0;
+    color: #fff;
 }
