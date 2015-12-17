@@ -64,6 +64,13 @@ define(function (require) {
                 console.log(edge);
             }
         }
+        else if (e.type === 'Delete Rect') {
+            var node = e.target;
+            if (node) {
+                node.remove();
+                console.log(node);
+            }
+        }
     };
 
     /**

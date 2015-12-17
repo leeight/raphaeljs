@@ -24,6 +24,8 @@ define(function (require) {
 
         this.rect = paper.rect(config.x, config.y,
             config.width, config.height, config.radius || 5);
+        this.rect.__sId = this._id;
+
         this.circles = this._initInputAndOutput(config);
 
         /*
@@ -52,6 +54,19 @@ define(function (require) {
 
         this.rect.attr({fill: color, cursor: 'move', stroke: '#cfcfcf'});
     }
+
+    Node.prototype.remove = function () {
+        this.outEdges.forEach(function (edge) {
+            edge.remove();
+        });
+        this.inEdges.forEach(function (edge) {
+            edge.remove();
+        });
+        this.circles.forEach(function (circle) {
+            circle.remove();
+        });
+        this.rect.remove();
+    };
 
     Node.prototype.removeOutEdge = function (edge) {
         for (var i = 0; i < this.outEdges.length; i++) {
