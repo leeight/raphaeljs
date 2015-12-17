@@ -18,7 +18,7 @@ define(function (require) {
     Ext.init(Raphael);
 
     var Node = require('./Node');
-    var Connection = require('./Connection');
+    var Editor = require('./Editor');
     var ContextMenu = require('./ContextMenu');
     var util = require('./util');
 
@@ -48,9 +48,8 @@ define(function (require) {
         circle.cross();
 
         var svg = document.querySelector('#holder > svg');
-        var editor = new Connection(svg, paper);
+        var editor = new Editor(svg, paper);
         editor.init();
-
 
         document.querySelector('#add-node').onclick = function () {
             var width = util.pick(150, 250);
