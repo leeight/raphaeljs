@@ -55,6 +55,15 @@ define(function (require) {
 
     Edge.prototype.bindEvent = function () {
         this.line.click(this._clickPath.bind(this));
+        var glow = null;
+        this.line.mouseover(function () {
+            glow = this.glow();
+        });
+        this.line.mouseout(function () {
+            if (glow) {
+                glow.remove();
+            }
+        });
     };
 
     Edge.prototype._clickPath = function (e) {
