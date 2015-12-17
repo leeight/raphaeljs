@@ -15,6 +15,7 @@ define(function (require) {
 
     var util = require('./util');
     var Edge = require('./Edge');
+    var ContextMenu = require('./ContextMenu');
 
     /**
      * @constructor
@@ -25,6 +26,9 @@ define(function (require) {
         this.canvas = canvas;
         this.clientRect = canvas.getBoundingClientRect();
         this.paper = paper;
+
+        this.menu = new ContextMenu();
+
 
         this._startNode = null;
         this._endNode = null;
@@ -37,10 +41,28 @@ define(function (require) {
     };
 
     Connection.prototype.bindEvent = function () {
-        this.canvas.onmousedown = this._onMouseDown.bind(this);
-        this.canvas.onmousemove = this._onMouseMove.bind(this);
-        this.canvas.onmouseover = this._onMouseOver.bind(this);
-        this.canvas.onmouseup   = this._onMoseUp.bind(this);
+        this.canvas.onmousedown   = this._onMouseDown.bind(this);
+        this.canvas.onmousemove   = this._onMouseMove.bind(this);
+        this.canvas.onmouseover   = this._onMouseOver.bind(this);
+        this.canvas.onmouseup     = this._onMoseUp.bind(this);
+        this.canvas.oncontextmenu = this._onContextMenu.bind(this);
+        this.canvas.onclick       = this._onClick.bind(this);
+    };
+
+    Connection.prototype._onClick = function (e) {
+        this.menu.hide();
+    };
+
+    /**
+     * 右键点击 Edge 的时候，显示自定义的菜单
+     * @param {jQuery.Event} e Event object.
+     */
+    Connection.prototype._onContextMenu = function (e) {
+        var x = (e.clientX - this.clientRect.left);
+        var y = (e.clientY - this.clientRect.top);
+        this.menu.setItems(['Copyright', 'Connection']);
+        this.menu.show().moveTo(e.pageX + 5, e.pageY + 5);
+        e.preventDefault();
     };
 
     Connection.prototype._onMouseDown = function (e) {
@@ -117,7 +139,8 @@ define(function (require) {
 
         var n1 = this._startNode.refNode;
         var n2 = this._endNode.refNode;
-        this._edges.push(new Edge(n1, n2, this._line));
+        var edge = new Edge(n1, n2, this._line);
+        this._edges.push(edge);
 
         this._line = null;
         this._endNode = null;

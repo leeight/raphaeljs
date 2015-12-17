@@ -19,6 +19,7 @@ define(function (require) {
 
     var Node = require('./Node');
     var Connection = require('./Connection');
+    var ContextMenu = require('./ContextMenu');
     var util = require('./util');
 
     function start() {
@@ -49,6 +50,7 @@ define(function (require) {
         var svg = document.querySelector('#holder > svg');
         var editor = new Connection(svg, paper);
         editor.init();
+
 
         document.querySelector('#add-node').onclick = function () {
             var width = util.pick(150, 250);
