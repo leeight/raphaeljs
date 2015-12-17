@@ -5,6 +5,8 @@
         <title>Raphaël · Graffle</title>
         <link rel="stylesheet" href="demo.css" type="text/css" media="screen">
         <script src="raphael.src.js" type="text/javascript" charset="utf-8"></script>
+        <script src="esl.js"></script>
+        <script>require.config({baseUrl: 'src'});</script>
         <style type="text/css" media="screen">
             #holder {
                 -moz-border-radius: 10px;
@@ -24,5 +26,5 @@
         </div>
         <p id="copy">Demo of <a href="http://raphaeljs.com/">Raphaël</a>—JavaScript Vector Library</p>
     </body>
-    <script src="app.js" type="text/javascript" charset="utf-8"></script>
+    <script>require(['app'], function (app) { app.start(); });</script>
 </html>
