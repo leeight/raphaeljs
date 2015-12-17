@@ -154,6 +154,7 @@ Node.prototype.onStart = function () {
     this.outEdges.forEach(function (edge) {
         edge.onStart();
     });
+    this.rect.animate({"fill-opacity": .2}, 500);
 };
 
 Node.prototype.onMove = function (dx, dy) {
@@ -176,6 +177,7 @@ Node.prototype.onMove = function (dx, dy) {
 };
 
 Node.prototype.onEnd = function () {
+    this.rect.animate({"fill-opacity": 1}, 500);
     console.log('DONE');
 };
 
@@ -224,10 +226,11 @@ canvas.onmousedown = function (e) {
 
     var x = g_startNode.attr('cx');
     var y = g_startNode.attr('cy');
-    var start = 'M' + x + ' ' + y;
-    var path = start + 'L' + (x + 1) + ' ' + (y + 1);
+    var start = ['M', x, y];
+    var path = [start, ['L', (x + 1), (y + 1)]];
     g_line = paper.path(path);
-    g_line.attr({'stroke-width': 2, 'stroke': '#cfcfcf', 'arrow-end': 'diamond'});
+    g_line.attr({'stroke-width': 2, 'stroke': '#cfcfcf',
+        'arrow-end': 'diamond', 'stroke-dasharray': '-.'});
     g_line.start = start;
 };
 
@@ -254,10 +257,10 @@ canvas.onmousemove = function (e) {
         return;
     }
 
-    var path = g_line.start;
+    var start = g_line.start;
     var offsetX = (e.clientX - clientRect.left);
     var offsetY = (e.clientY - clientRect.top);
-    path += ' L' + offsetX + ' ' + offsetY;
+    var path = [start, ['L', offsetX, offsetY]];
     g_line.attr('path', path);
 };
 
@@ -275,10 +278,35 @@ canvas.onmouseup = function (e) {
         return;
     }
 
-    var path = g_line.start;
+    var start = g_line.start;
     var x = g_endNode.attr('cx');
     var y = g_endNode.attr('cy');
-    g_line.attr('path', path + ' L' + x + ' ' + y);
+    var path = [start, ['L', x, y]];
+    g_line.attr({'path': path, 'stroke-dasharray': 'none'});
+
+    // BEGIN Curve
+    var x1 = start[1];
+    var y1 = start[2];
+
+    var x4 = x;
+    var y4 = y;
+
+    var dx = Math.max(Math.abs(x1 - x4) / 2, 10);
+    var dy = Math.max(Math.abs(y1 - y4) / 2, 10);
+
+    // TODO res应该如何计算出来的呢?
+    var res = [0, 4];
+    var x2 = [x1, x1, x1 - dx, x1 + dx][res[0]].toFixed(3);
+    var y2 = [y1 - dy, y1 + dy, y1, y1][res[0]].toFixed(3);
+    var x3 = [0, 0, 0, 0, x4, x4, x4 - dx, x4 + dx][res[1]].toFixed(3);
+    var y3 = [0, 0, 0, 0, y1 + dy, y1 - dy, y4, y4][res[1]].toFixed(3);
+
+    var path = [
+        "M", x1.toFixed(3), y1.toFixed(3),
+        "C", x2, y2, x3, y3, x4.toFixed(3), y4.toFixed(3)
+    ].join(",");
+    // g_line.attr('path', path);
+    // E N D Curve
 
     // BEGIN Create Edge
     var n1 = g_startNode.refNode;
