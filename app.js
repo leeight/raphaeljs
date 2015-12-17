@@ -13,6 +13,33 @@
 
 var paper = Raphael('holder', 640, 480);
 
+Raphael.el.cross = function () {
+    if (this.type !== 'circle') {
+        return;
+    }
+    // this.attr({fill: "red"});
+
+    var cx = this.attr('cx');
+    var cy = this.attr('cy');
+    var r  = this.attr('r');
+
+    var path = [
+        ['M', cx - r, cy - r],
+        ['L', cx + r, cy + r],
+        ['M', cx + r, cy - r],
+        ['L', cx - r, cy + r]
+    ];
+    this.attr({cursor: 'pointer'});
+    var path = this.paper.path(path).attr({
+        stroke: "red", cursor: 'pointer',
+        'clip-rect': (cx - r / 2) + ',' + (cy - r / 2) + ',' + r + ',' + r
+    });
+};
+
+var circle = paper.circle(300, 300, 30);
+circle.cross();
+
+
 /**
  * @constructor
  * @param {number} n1 Node1
@@ -49,7 +76,6 @@ Edge.prototype.onMoveStartPoint = function (dx, dy) {
 };
 
 function Node(paper, config) {
-    this.paper = paper;
     this.rect = paper.rect(config.x, config.y,
         config.width, config.height, config.radius || 5);
     this.circles = this._initInputAndOutput(config);
@@ -104,7 +130,7 @@ Node.prototype._initInputAndOutput = function (config) {
         for (var i = 0; i < config.input; i ++) {
             var x = config.x + (i + 1) * step;
             var y = config.y;
-            var circle = this.paper.circle(x, y, 5);
+            var circle = this.rect.paper.circle(x, y, 5);
             circle.toFront();
             circle.mouseover(enlargeCircle);
             circle.mouseout(restoreCircleSize);
@@ -118,7 +144,7 @@ Node.prototype._initInputAndOutput = function (config) {
         for (var i = 0; i < config.output; i ++) {
             var x = config.x + (i + 1) * step;
             var y = config.y + config.height;
-            var circle = this.paper.circle(x, y, 5);
+            var circle = this.rect.paper.circle(x, y, 5);
             circle.toFront();
             circle.mouseover(enlargeCircle);
             circle.mouseout(restoreCircleSize);
@@ -228,8 +254,21 @@ canvas.onmousedown = function (e) {
     var path = [start, ['L', (x + 1), (y + 1)]];
     g_line = paper.path(path);
     g_line.attr({'stroke-width': 2, 'stroke': '#cfcfcf',
-        'arrow-end': 'diamond-wide', 'stroke-dasharray': '-.'});
+        'arrow-end': 'diamond-wide', 'stroke-dasharray': '-.',
+        'cursor': 'pointer'});
     g_line.start = start;
+    g_line.click(function (e) {
+        this.attr({'stroke-dasharray': '-.'});
+        return;
+        console.log(e);
+        var offsetX = (e.clientX - clientRect.left);
+        var offsetY = (e.clientY - clientRect.top);
+        var circle = paper.circle(offsetX, offsetX, 10);
+        circle.attr({
+            fill: 'green',
+            stroke: 'green'
+        });
+    });
 };
 
 canvas.onmouseover = function (e) {
