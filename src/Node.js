@@ -35,15 +35,8 @@ define(function (require) {
 
         this.circles = this._initInputAndOutput(config);
 
-        /*
-        if (config.text) {
-            this.text = paper.text(config.x, config.y + config.height / 2,
-                config.text);
-        }
-        */
-
         this.icon = this._getIcon(config);
-
+        this.text = this._getText(config);
 
         /**
          * 入边，移动的时候，调整 Mx,y 的值
@@ -67,7 +60,7 @@ define(function (require) {
 
     Node.prototype.remove = function () {
         util.remove(this.outEdges, this.inEdges,
-            this.circles, this.rect, this.icon);
+            this.circles, this.rect, this.icon, this.text);
     };
 
     Node.prototype.removeOutEdge = function (edge) {
@@ -96,6 +89,20 @@ define(function (require) {
         this.inEdges.push(edge);
     };
 
+    Node.prototype._getText = function (config) {
+        if (config.text) {
+            var x = config.x + config.width / 2;
+            var y = config.y + config.height / 2;
+            var text = this.paper.text(x, y, config.text);
+            text.attr({
+                'font-size': 24,
+                'font-family': 'Arial, sans-serif',
+                'fill': '#fff'
+            });
+            return text;
+        }
+    };
+
     Node.prototype._getIcon = function (config) {
         var icon = config.icon;
         if (/^fa:\/\//.test(icon)) {
@@ -116,7 +123,7 @@ define(function (require) {
             return text;
         }
         return null;
-    }
+    };
 
     Node.prototype._initInputAndOutput = function (config) {
         function enlargeCircle(e) {
@@ -183,7 +190,18 @@ define(function (require) {
             this.icon.ox = this.icon.attr('x');
             this.icon.oy = this.icon.attr('y');
         }
+        if (this.text) {
+            this.text.ox = this.text.attr('x');
+            this.text.oy = this.text.attr('y');
+        }
+
         this.rect.animate({'fill-opacity': .2}, 500);
+        if (this.icon) {
+            this.icon.animate({'fill-opacity': .2}, 500);
+        }
+        if (this.text) {
+            this.text.animate({'fill-opacity': .2}, 500);
+        }
     };
 
     Node.prototype.onMove = function (dx, dy) {
@@ -209,10 +227,22 @@ define(function (require) {
                 y: this.icon.oy + dy
             });
         }
+        if (this.text) {
+            this.text.attr({
+                x: this.text.ox + dx,
+                y: this.text.oy + dy
+            });
+        }
     };
 
     Node.prototype.onEnd = function () {
         this.rect.animate({'fill-opacity': 1}, 500);
+        if (this.icon) {
+            this.icon.animate({'fill-opacity': 1}, 500);
+        }
+        if (this.text) {
+            this.text.animate({'fill-opacity': 1}, 500);
+        }
     };
 
     return Node;

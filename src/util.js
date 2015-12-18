@@ -20,6 +20,8 @@ define(function (require) {
     var uuid = 0x8964;
     var pool = {};
 
+    var RaphaelElement = Raphael.el.constructor;
+
     exports.pick = function (min, max) {
         return min + ~~((max - min) * Math.random());
     };
@@ -54,6 +56,19 @@ define(function (require) {
     exports.Base = function () {
         this._id = (uuid++).toString(36);
         pool[this._id] = this;
+    };
+
+    exports.onStart = function (object) {
+        for (var p in object) {
+            if (!object.hasOwnProperty(p)) {
+                continue;
+            }
+            var value = object[p];
+            if (!(value instanceof RaphaelElement)) {
+                continue;
+            }
+            // TODO
+        }
     };
 
     exports.remove = function () {
