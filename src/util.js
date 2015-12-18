@@ -79,7 +79,8 @@ define(function (require) {
             }
 
             if (Array.isArray(item)) {
-                item.forEach(function (child) {
+                for (var j = 0; j < item.length; j++) {
+                    var child = item[j];
                     if (child && typeof child.remove === 'function') {
                         try {
                             child.remove();
@@ -88,7 +89,7 @@ define(function (require) {
                             console.error(ex);
                         }
                     }
-                });
+                }
             }
             else if (typeof item.remove === 'function') {
                 try {
