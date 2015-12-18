@@ -79,8 +79,8 @@ define(function (require) {
             }
 
             if (Array.isArray(item)) {
-                for (var j = 0; j < item.length; j++) {
-                    var child = item[j];
+                while (item.length) {
+                    var child = item.pop(); // [item.length - 1];
                     if (child && typeof child.remove === 'function') {
                         try {
                             child.remove();
