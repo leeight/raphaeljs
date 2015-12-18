@@ -38,7 +38,7 @@ define(function (require) {
             x: 5, y: 5,
             width: 300, height: 50,
             text: 'hello world',
-            icon: 'fa://\uf28e',
+            icon: 'fa://\uf09b',
             radius: 5,
             input: 1,
             output: 2
