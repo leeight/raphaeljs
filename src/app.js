@@ -38,7 +38,7 @@ define(function (require) {
             x: 5, y: 5,
             width: 300, height: 50,
             text: 'hello world',
-            icon: 'image://foo-bar',
+            icon: 'fa://\uf28e',
             radius: 5,
             input: 1,
             output: 2
@@ -49,6 +49,7 @@ define(function (require) {
         var node2 = new Node(paper, {
             x: 100, y: 100,
             width: 100, height: 30,
+            icon: 'fa://\uf28e',
             input: 1,
             output: 3
         });

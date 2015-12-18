@@ -56,6 +56,36 @@ define(function (require) {
         pool[this._id] = this;
     };
 
+    exports.remove = function () {
+        for (var i = 0; i < arguments.length; i++) {
+            var item = arguments[i];
+            if (!item) {
+                continue;
+            }
+
+            if (Array.isArray(item)) {
+                item.forEach(function (child) {
+                    if (child && typeof child.remove === 'function') {
+                        try {
+                            child.remove();
+                        }
+                        catch (ex) {
+                            console.error(ex);
+                        }
+                    }
+                });
+            }
+            else if (typeof item.remove === 'function') {
+                try {
+                    item.remove();
+                }
+                catch (ex) {
+                    console.error(ex);
+                }
+            }
+        }
+    };
+
     return exports;
 });
 

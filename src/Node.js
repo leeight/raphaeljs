@@ -28,6 +28,7 @@ define(function (require) {
     function Node(paper, config) {
         util.Base.call(this);
 
+        this.paper = paper;
         this.rect = paper.rect(config.x, config.y,
             config.width, config.height, config.radius || 5);
         this.rect.__sId = this._id;
@@ -40,6 +41,9 @@ define(function (require) {
                 config.text);
         }
         */
+
+        this.icon = this._getIcon(config);
+
 
         /**
          * 入边，移动的时候，调整 Mx,y 的值
@@ -62,16 +66,8 @@ define(function (require) {
     }
 
     Node.prototype.remove = function () {
-        this.outEdges.forEach(function (edge) {
-            edge.remove();
-        });
-        this.inEdges.forEach(function (edge) {
-            edge.remove();
-        });
-        this.circles.forEach(function (circle) {
-            circle.remove();
-        });
-        this.rect.remove();
+        util.remove(this.outEdges, this.inEdges,
+            this.circles, this.rect, this.icon);
     };
 
     Node.prototype.removeOutEdge = function (edge) {
@@ -100,6 +96,28 @@ define(function (require) {
         this.inEdges.push(edge);
     };
 
+    Node.prototype._getIcon = function (config) {
+        var icon = config.icon;
+        if (/^fa:\/\//.test(icon)) {
+            var b1 = this.rect.getBBox();
+            var size = b1.height - 10;
+            var text = this.paper.text(0, 0, icon.substr(5));
+            text.attr({
+                'font-size': size,
+                'fill': '#fff',
+                'font-family': 'FontAwesome'
+            });
+            var b2 = text.getBBox();
+            text.attr({
+                x: b1.x + 10 + (b2.width / 2),
+                // 10 的话貌似不是居中对齐的.
+                y: b1.y + 4 + (b2.height / 2)
+            });
+            return text;
+        }
+        return null;
+    }
+
     Node.prototype._initInputAndOutput = function (config) {
         function enlargeCircle(e) {
             this.attr({fill: 'yellow', r: 8});
@@ -115,7 +133,7 @@ define(function (require) {
             for (var i = 0; i < config.input; i++) {
                 var x = config.x + (i + 1) * step;
                 var y = config.y;
-                var circle = this.rect.paper.circle(x, y, 5);
+                var circle = this.paper.circle(x, y, 5);
                 circle.mouseover(enlargeCircle);
                 circle.mouseout(restoreCircleSize);
                 circle.__sId = this._id;
@@ -128,7 +146,7 @@ define(function (require) {
             for (i = 0; i < config.output; i++) {
                 x = config.x + (i + 1) * step;
                 y = config.y + config.height;
-                circle = this.rect.paper.circle(x, y, 5);
+                circle = this.paper.circle(x, y, 5);
                 circle.mouseover(enlargeCircle);
                 circle.mouseout(restoreCircleSize);
                 circle.__sId = this._id;
@@ -161,6 +179,10 @@ define(function (require) {
         this.outEdges.forEach(function (edge) {
             edge.onStart();
         });
+        if (this.icon) {
+            this.icon.ox = this.icon.attr('x');
+            this.icon.oy = this.icon.attr('y');
+        }
         this.rect.animate({'fill-opacity': .2}, 500);
     };
 
@@ -181,6 +203,12 @@ define(function (require) {
         this.outEdges.forEach(function (edge) {
             edge.onMoveStartPoint(dx, dy);
         });
+        if (this.icon) {
+            this.icon.attr({
+                x: this.icon.ox + dx,
+                y: this.icon.oy + dy
+            });
+        }
     };
 
     Node.prototype.onEnd = function () {
