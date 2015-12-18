@@ -7,7 +7,13 @@
         <script src="bower_components/jquery/dist/jquery.js"></script>
         <script src="bower_components/raphael/raphael.js"></script>
         <script src="esl.js"></script>
-        <script>require.config({baseUrl: 'src'});</script>
+        <script src="bower_components/underscore/underscore.js"></script>
+        <script>
+        require.config({
+            baseUrl: 'src',
+            packages: []
+        });
+        </script>
         <style type="text/css" media="screen">
             #holder {
                 -moz-border-radius: 10px;

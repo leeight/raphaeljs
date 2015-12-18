@@ -9,6 +9,9 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
+ *
+ * @file src/Node.js
+ * @author leeight
  */
 
 define(function (require) {
@@ -16,7 +19,10 @@ define(function (require) {
     var util = require('./util');
 
     /**
+     * Node的构造函数
+     *
      * @constructor
+     * @param {Raphael.Paper} paper 画布.
      * @param {Object} config Node's configuration.
      */
     function Node(paper, config) {
@@ -110,7 +116,6 @@ define(function (require) {
                 var x = config.x + (i + 1) * step;
                 var y = config.y;
                 var circle = this.rect.paper.circle(x, y, 5);
-                circle.toFront();
                 circle.mouseover(enlargeCircle);
                 circle.mouseout(restoreCircleSize);
                 circle.__sId = this._id;
@@ -124,7 +129,6 @@ define(function (require) {
                 x = config.x + (i + 1) * step;
                 y = config.y + config.height;
                 circle = this.rect.paper.circle(x, y, 5);
-                circle.toFront();
                 circle.mouseover(enlargeCircle);
                 circle.mouseout(restoreCircleSize);
                 circle.__sId = this._id;

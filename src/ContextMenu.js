@@ -9,6 +9,9 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
+ *
+ * @file src/ContextMenu.js
+ * @author leeight
  */
 
 define(function (require) {
@@ -29,6 +32,7 @@ define(function (require) {
      * 点击不同的元素，可能需要展示的菜单项是不同的
      *
      * @param {Array.<string>} items 需要展示的菜单项目.
+     * @return {ContextMenu}
      */
     ContextMenu.prototype.setItems = function (items) {
         var html = '<ul>';

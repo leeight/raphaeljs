@@ -1,0 +1,13 @@
+{
+    "files": ["src"],
+
+
+    "eslint": {
+        "rules": {
+            "no-console": 0
+        },
+        "globals": {
+            "Raphael": true
+        }
+    }
+}

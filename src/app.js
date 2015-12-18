@@ -9,6 +9,9 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
+ *
+ * @file src/app.js
+ * @author leeight
  */
 
 define(function (require) {
@@ -19,10 +22,17 @@ define(function (require) {
 
     var Node = require('./Node');
     var Editor = require('./Editor');
-    var util = require('./util');
 
     function start() {
+        /*eslint-disable*/
         var paper = Raphael('holder', 640, 480);
+        /*eslint-enable*/
+
+        // var circle = paper.circle(300, 300, 30);
+        // circle.cross();
+
+        var editor = new Editor(paper);
+        editor.init();
 
         var node = new Node(paper, {
             x: 5, y: 5,
@@ -34,6 +44,7 @@ define(function (require) {
             output: 2
         });
         node.moveable();
+        editor.addNode(node);
 
         var node2 = new Node(paper, {
             x: 100, y: 100,
@@ -42,26 +53,10 @@ define(function (require) {
             output: 3
         });
         node2.moveable();
-
-        var circle = paper.circle(300, 300, 30);
-        circle.cross();
-
-        var svg = document.querySelector('#holder > svg');
-        var editor = new Editor(svg, paper);
-        editor.init();
+        editor.addNode(node2);
 
         document.querySelector('#add-node').onclick = function () {
-            var width = util.pick(150, 250);
-            var height = util.pick(30, 60);
-            var node = new Node(paper, {
-                x: util.pick(0, 640 - width),
-                y: util.pick(0, 480 - height),
-                width: width,
-                height: height,
-                input: util.pick(0, 3),
-                output: util.pick(1, 4)
-            });
-            node.moveable();
+            editor.generateNode();
         };
     }
 

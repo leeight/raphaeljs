@@ -9,33 +9,60 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
+ *
+ * @file src/Editor.js
+ * @author leeight
  */
 
 define(function (require) {
 
     var util = require('./util');
     var Edge = require('./Edge');
+    var Node = require('./Node');
     var ContextMenu = require('./ContextMenu');
 
     /**
      * 编辑器
      *
      * @constructor
-     * @param {Element} canvas The svg element.
-     * @param {Paper} paper The raphael paper.
+     * @param {Raphael.Paper} paper The raphael paper.
      */
-    function Editor(canvas, paper) {
-        this.canvas = canvas;
-        this.clientRect = canvas.getBoundingClientRect();
+    function Editor(paper) {
         this.paper = paper;
+        this.clientRect = paper.canvas.getBoundingClientRect();
 
         this.menu = new ContextMenu();
 
 
+        /**
+         * 划线时候的开始节点
+         * @type {Raphael.Circle}
+         */
         this._startNode = null;
+
+        /**
+         * 划线时候的结束节点
+         * @type {Raphael.Circle}
+         */
         this._endNode = null;
+
+        /**
+         * 拖动过程中的那条虚线
+         * @type {Raphael.Path}
+         */
         this._line = null;
+
+        /**
+         * 所有的边
+         * @type {Array.<Edge>}
+         */
         this._edges = [];
+
+        /**
+         * 所有的节点
+         * @type {Array.<Node>}
+         */
+        this._nodes = [];
     }
 
     Editor.prototype.init = function () {
@@ -43,13 +70,14 @@ define(function (require) {
     };
 
     Editor.prototype.bindEvent = function () {
-        this.canvas.onmousedown   = this._onMouseDown.bind(this);
-        this.canvas.onmousemove   = this._onMouseMove.bind(this);
-        this.canvas.onmouseover   = this._onMouseOver.bind(this);
-        this.canvas.onmouseup     = this._onMoseUp.bind(this);
-        this.canvas.oncontextmenu = this._onContextMenu.bind(this);
-        this.canvas.onclick       = this._onClick.bind(this);
-        this.menu.onselected      = this._onContextMenuSelected.bind(this);
+        var canvas = this.paper.canvas;
+        canvas.onmousedown   = this._onMouseDown.bind(this);
+        canvas.onmousemove   = this._onMouseMove.bind(this);
+        canvas.onmouseover   = this._onMouseOver.bind(this);
+        canvas.onmouseup     = this._onMoseUp.bind(this);
+        canvas.oncontextmenu = this._onContextMenu.bind(this);
+        canvas.onclick       = this._onClick.bind(this);
+        this.menu.onselected = this._onContextMenuSelected.bind(this);
     };
 
     Editor.prototype._onClick = function (e) {
@@ -71,6 +99,26 @@ define(function (require) {
                 console.log(node);
             }
         }
+    };
+
+    Editor.prototype.addNode = function (node) {
+        this._nodes.push(node);
+    };
+
+    Editor.prototype.generateNode = function () {
+        var width = util.pick(150, 250);
+        var height = util.pick(30, 60);
+        var node = new Node(this.paper, {
+            x: util.pick(0, 640 - width),
+            y: util.pick(0, 480 - height),
+            width: width,
+            height: height,
+            input: util.pick(0, 3),
+            output: util.pick(1, 4)
+        });
+        node.moveable();
+
+        this.addNode(node);
     };
 
     /**
